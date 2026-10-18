@@ -1,1 +1,2 @@
 Sample file
+Sample file
