@@ -16,6 +16,7 @@ from typing import Literal
 
 from pydantic import Field 
 from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Project root = two levels above backend/config/
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -45,6 +46,12 @@ class Settings(BaseSettings):
     # --- Local mode storage ---
     local_data_dir: str = Field(str(PROJECT_ROOT / ".meridian"), validation_alias="LOCAL_DATA_DIR")
     chroma_collection: str = Field("meridian_docs", validation_alias="CHROMA_COLLECTION")
+
+    model_config = SettingsConfigDict(
+        env_file=str(PROJECT_ROOT / ".env"),  # found no matter which folder you start from
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
 
     # --- Convenience ---

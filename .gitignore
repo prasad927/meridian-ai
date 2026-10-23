@@ -15,3 +15,5 @@ frontend/dist/
 .meridian/
 
 __pycache__/
+
+logs
