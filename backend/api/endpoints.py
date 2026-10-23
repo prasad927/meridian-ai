@@ -2,6 +2,11 @@
 
     /api/health        - is the server up?
     /api/status        - configuration summary shown on the System Status tab
+    /api/agent/audit   - run the multi-agent procurement audit        (agent/agents.py)
+    /api/rag/ask       - ask a question about the ingested documents  (rag/retrieval.py)
+    /api/rag/upload    - upload PDFs and index them                   (rag/data_ingestion.py)
+    /api/rag/ingest    - index every PDF already in the document store
+                         (local folder or GCS bucket, depending on APP_MODE)
 
 Errors: our own exceptions (exceptions/) are turned into clear HTTP answers in api/main.py,
 so the routes only catch what they can explain better themselves.

@@ -51,5 +51,22 @@ app.add_middleware(
 )
 
 
+@app.exception_handler(ConfigurationError)
+async def configuration_error(_: Request, exc: ConfigurationError):
+    """A missing setting is not a crash: tell the caller exactly what to set."""
+    log.error("Configuration error", error=str(exc))
+    return JSONResponse(status_code=503, content={"detail": str(exc)})
+
+
+@app.exception_handler(IngestionError)
+async def ingestion_error(_: Request, exc: IngestionError):
+    log.error("Ingestion error", error=str(exc))
+    return JSONResponse(status_code=422, content={"detail": str(exc)})
+
+
+
 app.include_router(health_router)
 app.include_router(status_router)
+app.include_router(agent_router)
+app.include_router(rag_router)
+
