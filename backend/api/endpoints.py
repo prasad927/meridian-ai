@@ -18,8 +18,8 @@ from functools import lru_cache
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.concurrency import run_in_threadpool
 
-
-from api.schemas import QueryRequest, QueryResponse
+from agent.agents import ProcurementSupervisor
+from api.schemas import QueryRequest, QueryResponse, AuditRequest, AuditResponse
 from config.settings import settings
 from exceptions import MeridianError
 from logger import GLOBAL_LOGGER as log
@@ -32,6 +32,7 @@ from rag.retrieval import ask_question
 health_router = APIRouter(prefix="/api", tags=["Health"])
 status_router = APIRouter(prefix="/api", tags=["Status"])
 rag_router = APIRouter(prefix="/api/rag", tags=["RAG"])
+agent_router = APIRouter(prefix="/api/agent", tags=["Agent"])
 
 
 _server_start_time = datetime.now(timezone.utc)
@@ -39,6 +40,13 @@ _upload_history: list[dict] = []
 
 
 
+@lru_cache(maxsize=1)
+def get_supervisor() -> ProcurementSupervisor:
+    """Build the agents on the first audit request, not when the server starts."""
+    return ProcurementSupervisor()
+
+
+# Health & status endpoints 
 
 @health_router.get("/health")
 def health():
@@ -82,6 +90,8 @@ def system_status():
         },
     }
 
+
+# RAG 
 
 @rag_router.post("/ask", response_model=QueryResponse)
 def rag_query(payload: QueryRequest):
@@ -162,4 +172,19 @@ def trigger_store_ingestion():
         raise
     except Exception as e:
         log.exception("Stored-document ingestion failed")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+# Purchase Audit (Agents flow)
+
+@agent_router.post("/audit", response_model=AuditResponse)
+def run_audit(payload: AuditRequest):
+    """Run the full multi-agent procurement audit and return all phase results."""
+    try:
+        return AuditResponse(**get_supervisor().run_audit(payload.request_text))
+    except MeridianError:
+        raise  # handled in api/main.py
+    except Exception as e:
+        log.exception("Audit failed")
         raise HTTPException(status_code=500, detail=str(e))

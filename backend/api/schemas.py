@@ -10,3 +10,15 @@ class QueryRequest(BaseModel):
 
 class QueryResponse(BaseModel):
     answer: str
+
+
+# Audit  Schemas
+
+class AuditRequest(BaseModel):
+    request_text: str
+
+class AuditResponse(BaseModel):
+    risk_result: str
+    tax_result: str
+    control_result: str
+    cfo_memo: str
