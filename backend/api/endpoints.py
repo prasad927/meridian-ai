@@ -12,16 +12,22 @@ import sys
 from datetime import datetime, timezone
 from functools import lru_cache
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException 
 from fastapi.concurrency import run_in_threadpool
 
+
+from api.schemas import QueryRequest, QueryResponse
 from config.settings import settings
 from exceptions import MeridianError
 from logger import GLOBAL_LOGGER as log
 from rag import document_store
+from rag.retrieval import ask_question
+
+
 
 health_router = APIRouter(prefix="/api", tags=["Health"])
 status_router = APIRouter(prefix="/api", tags=["Status"])
+rag_router = APIRouter(prefix="/api/rag", tags=["RAG"])
 
 
 _server_start_time = datetime.now(timezone.utc)
@@ -72,3 +78,14 @@ def system_status():
         },
     }
 
+
+@rag_router.post("/ask", response_model=QueryResponse)
+def rag_query(payload: QueryRequest):
+    """Ask a question; the answer comes only from the indexed documents."""
+    try:
+        return QueryResponse(answer=ask_question(payload.query, payload.retriever_type))
+    except MeridianError:
+        raise
+    except Exception as e:
+        log.exception("RAG query failed")
+        raise HTTPException(status_code=500, detail=str(e))
