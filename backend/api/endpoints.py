@@ -7,12 +7,15 @@ Errors: our own exceptions (exceptions/) are turned into clear HTTP answers in a
 so the routes only catch what they can explain better themselves.
 """
 
+import os
 import platform
 import sys
+import tempfile
+import shutil
 from datetime import datetime, timezone
 from functools import lru_cache
 
-from fastapi import APIRouter, HTTPException 
+from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.concurrency import run_in_threadpool
 
 
@@ -21,6 +24,7 @@ from config.settings import settings
 from exceptions import MeridianError
 from logger import GLOBAL_LOGGER as log
 from rag import document_store
+from rag.data_ingestion import ingest_pdf, ingest_stored_pdfs
 from rag.retrieval import ask_question
 
 
@@ -88,4 +92,74 @@ def rag_query(payload: QueryRequest):
         raise
     except Exception as e:
         log.exception("RAG query failed")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@rag_router.post("/upload")
+async def upload_documents(files: list[UploadFile] = File(...)):
+    """Accept one or more PDFs, keep a copy in the document store, then chunk, embed and index them."""
+    if not files:
+        raise HTTPException(status_code=400, detail="No files provided.")
+
+    results = []
+    tmp_dir = tempfile.mkdtemp()
+    try:
+        for upload in files:
+            filename = os.path.basename(upload.filename or "")
+            if not filename.lower().endswith(".pdf"):
+                results.append({"filename": filename, "status": "skipped",
+                                "reason": "Only PDF files are supported."})
+                continue
+
+            # Save to a temp file (the async UploadFile must be awaited to read it)
+            local_path = os.path.join(tmp_dir, filename)
+            with open(local_path, "wb") as f:
+                f.write(await upload.read())
+
+            # Keep the original PDF (local folder). Indexing still works if this fails.
+            try:
+                await run_in_threadpool(document_store.save, local_path, filename)
+            except Exception as store_err:
+                log.warning("Could not store original file", filename=filename, error=str(store_err))
+
+            # ingest_pdf is slow and blocking, so run it in a worker thread to keep the server responsive
+            summary = await run_in_threadpool(ingest_pdf, local_path, f"upload://{filename}")
+
+            if summary["chunks"] == 0:
+                log.warning("No chunks extracted, skipping indexing", filename=filename)
+                results.append({"filename": filename, "status": "skipped",
+                                "reason": "No extractable text found in PDF (may be a scanned/image-based PDF)."})
+                continue
+
+            log.info("Successfully ingested chunks", filename=filename, **summary)
+            results.append({"filename": filename, "status": "ingested", **summary})
+    except MeridianError:
+        raise
+    except Exception as e:
+        log.exception("Upload failed")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+
+    _upload_history.extend(results)
+    return {"results": results}
+
+
+@rag_router.get("/uploads")
+def list_uploads():
+    """Return the history of uploaded documents (in-memory, resets on restart)."""
+    return {"uploads": _upload_history}
+
+
+
+@rag_router.post("/ingest")
+def trigger_store_ingestion():
+    """Index every PDF already in the document store (local folder)."""
+    try:
+        totals = ingest_stored_pdfs()
+        return {"status": f"Ingestion complete ({settings.app_mode} mode)", **totals}
+    except MeridianError:
+        raise
+    except Exception as e:
+        log.exception("Stored-document ingestion failed")
         raise HTTPException(status_code=500, detail=str(e))
