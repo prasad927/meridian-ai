@@ -1,2 +1,17 @@
 .venv
 .env
+
+
+# Force inclusion of frontend source files that might be caught by broad rules
+!frontend/src/lib/
+!frontend/src/lib/**
+
+
+# Node / Vite
+frontend/node_modules/
+frontend/dist/
+*.log
+
+.meridian/
+
+__pycache__/
