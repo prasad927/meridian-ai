@@ -9,11 +9,6 @@
 #   2. RESPONSIBILITIES - what it owns
 #   3. DECISION FRAMEWORK - which tool to call, in what order, and how to read results
 #   4. OUTPUT FORMAT   - an exact structure, so the next step can rely on it
-#
-# NOTE: the CFO synthesis prompt below looks for the literal strings
-# 'RED ALERT', 'FX ALERT' and 'HOLD FOR TREASURY AUDIT'. Those strings come
-# from the tools in agent/tools.py and the specialist prompts here, so if you
-# rename one, rename it everywhere.
 
 RISK_AGENT_PROMPT = """
 You are a Senior Risk & Compliance Officer at Aldermoor Industries, a fictional German manufacturer of \

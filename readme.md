@@ -169,3 +169,47 @@ Aldermoor Industries and the accompanying sample documents are fictional. The pu
 
 ![Out of context question](working_samples/RAG-out-of-context-question.png "Out of context question)")
 
+
+
+### Multi Agent AI Workflow (Purchase Request Approved To Pay)
+
+#### Purchase Request
+
+```text
+Purchase Request - Aldermoor Industries Global Procurement:
+- Vendor: Mitsubishi Electric (Japan)
+- Item: 20 spare servo motors for the Aldermoor filling line
+- Total Cost: 38,000 EUR
+- Origin: JP (Japan)
+- Destination: DE (Aldermoor Industries, Hamburg, Germany)
+- FX Rate quoted: 1 EUR = 176.5 JPY
+```
+
+#### Output (CFO Audit Memorandum Synthesised output from all specialist agents)
+
+> **ALDERMOOR INDUSTRIES — CFO AUDIT MEMORANDUM**<br>
+> **RE:** Procurement Request Audit Summary
+
+**EXECUTIVE SUMMARY:**
+
+This memorandum synthesises the three-point pre-procurement audit for the acquisition of 20 replacement servo motors (€38,000.00 net; €45,220.00 landed) sourced from Japan for the Hamburg filling machinery line. Unanimous clearance has been granted across Risk & Compliance (sanctions cleared, low counterparty risk), Tax & Treasury (EPA preferential tariff verified, FX variance within hedge tolerance), and Financial Control (compliant OpEx treatment under IAS 16.12/IAS 2).
+
+**KEY FINDINGS:**
+
+- **Risk & Compliance:** APPROVED — Full clearance across all international sanctions lists (EU/OFAC/UN/HMT/BAFA); counterparty credit score 90/100 (Low Risk); flagged as a critical-path automation supplier requiring Hamburg buffer stock.
+- **Tax & Treasury:** APPROVED — Total landed cost established at €45,220.00, leveraging EU-Japan EPA 0% customs duty with €7,220.00 (19%) recoverable German Import VAT; FX rate variance (+0.56%) is well within Group Treasury’s ±5% hedge band.
+- **IFRS Financial Control:** APPROVED — Validated as OpEx under IAS 16.12 / IAS 2; transaction value sits below the €50,000 threshold and requires standard operational sign-off.
+
+**FINAL DECISION: APPROVED TO PAY**
+
+**Reason:** All three specialist audit reports returned affirmative verdicts (APPROVED/SUCCESS) with zero anomaly flags or treasury holds. Under the Aldermoor Delegation of Authority Matrix, commercial release is authorized against GL Account Range 5xxx (Material Costs: MRO Consumables & Spare Parts) under Cost Centre 4210 (Plant Maintenance & Filling Line Assembly).
+
+**NEXT ACTIONS:**
+
+1. **Global Procurement & Logistics** — Issue Purchase Order under Net-30/45 terms; ensure supplier includes compliant EPA Statement on Origin/REX reference and execute standard dual-use clearance — **Deadline:** 2 business days (28 May 2024)
+2. **Accounts Payable & Financial Control** — Post commitment to GL 5xxx / Cost Centre 4210 and schedule payment release upon matching commercial invoice against customs documentation — **Deadline:** Standard payment run post-invoice verification
+3. **Group Tax** — Log customs documentation upon Hamburg entry to execute full €7,220.00 input tax recovery (*Vorsteuerabzug*) on the next *Umsatzsteuer-Voranmeldung* — **Deadline:** Next statutory VAT filing (10 June 2024)
+4. **Plant Maintenance (Hamburg)** — Intake and log the 20 servo motors into Hamburg critical spare inventory to safeguard line uptime — **Deadline:** Immediate upon customs receipt
+
+**Signed,**<br>
+CFO Office — Aldermoor Industries, Hamburg

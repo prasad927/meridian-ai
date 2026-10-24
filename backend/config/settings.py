@@ -53,6 +53,10 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    agent_max_model_calls: int = Field(6, validation_alias="AGENT_MAX_MODEL_CALLS")
+    agent_max_tool_calls: int = Field(6, validation_alias="AGENT_MAX_TOOL_CALLS")
+    agent_max_retries: int = Field(2, validation_alias="AGENT_MAX_RETRIES")
+
 
     # --- Convenience ---
     @property
