@@ -145,3 +145,27 @@ The frontend communicates with the backend API. Start the backend before testing
 ## Important Disclaimer
 
 Aldermoor Industries and the accompanying sample documents are fictional. The purchase auditing workflow is an educational demonstration, not a substitute for professional tax, accounting, legal, or regulatory compliance review.
+
+
+## Working Examples
+
+### RAG Retrieval Strategy (Normal)
+
+![Retrieval Strategy (Normal)](working_samples/RAG-retrival-normal.png "Retrieval Strategy (Normal)")
+
+
+### RAG Retrieval Strategy (Multi-Query)
+
+![Retrieval Strategy (Multi-Query)](working_samples/RAG-retrival-multi-query-1.png "Retrieval Strategy (Multi-Query)")
+
+![Retrieval Strategy (Multi-Query)](working_samples/RAG-retrival-multi-query-2.png "Retrieval Strategy (Multi-Query)")
+
+
+### RAG Retrieval Strategy (Contextual Compression)
+
+![Retrieval Strategy (Contextual Compression)](working_samples/RAG-retrival-contextual-compression.png "Retrieval Strategy (Contextual Compression)")
+
+### RAG Out of Context Question
+
+![Out of context question](working_samples/RAG-out-of-context-question.png "Out of context question)")
+

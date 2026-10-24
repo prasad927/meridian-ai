@@ -12,6 +12,7 @@ const EXAMPLE_QUERIES = [
 interface HistoryEntry {
   query: string;
   answer: string | null;
+  sources: Array<{ source: string; filename: string; pages: number[] }>;
   error: string | null;
   ts: number;
 }
@@ -27,12 +28,12 @@ export default function RagQATab() {
     if (!text || loading) return;
     setQuery("");
     setLoading(true);
-    const entry: HistoryEntry = { query: text, answer: null, error: null, ts: Date.now() };
+    const entry: HistoryEntry = { query: text, answer: null, sources: [], error: null, ts: Date.now() };
     setHistory((prev) => [entry, ...prev]);
 
     try {
       const res = await askQuestion(text, retrieverType);
-      setHistory((prev) => prev.map((h) => (h.ts === entry.ts ? { ...h, answer: res.answer } : h)));
+      setHistory((prev) => prev.map((h) => (h.ts === entry.ts ? { ...h, answer: res.answer, sources: res.sources ?? [] } : h)));
     } catch (err: any) {
       setHistory((prev) => prev.map((h) => (h.ts === entry.ts ? { ...h, error: err.message } : h)));
     } finally {
@@ -162,6 +163,19 @@ export default function RagQATab() {
                         <div className="absolute top-0 left-0 w-1 h-full bg-primary/20 group-hover:bg-primary/50 transition-colors" />
                         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/70 mb-3 ml-1">Verified Answer</p>
                         <p className="text-sm text-card-foreground leading-relaxed whitespace-pre-wrap">{h.answer}</p>
+                        {h.sources.length > 0 && (
+                          <div className="mt-4 pt-3 border-t border-border/60">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground mb-2">Retrieved from</p>
+                            <ul className="space-y-1">
+                              {h.sources.map((source) => (
+                                <li key={source.source} className="text-xs text-muted-foreground">
+                                  <span className="font-medium text-card-foreground">{source.filename}</span>
+                                  {source.pages.length > 0 && <span> · page{source.pages.length > 1 ? "s" : ""} {source.pages.join(", ")}</span>}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </div>
                     ) : h.error ? (
                       <div className="ml-11 p-4 rounded-lg bg-destructive/5 border border-destructive/20">

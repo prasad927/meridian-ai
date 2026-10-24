@@ -91,9 +91,22 @@ def build_rag_chain(retriever_type: str = "similarity"):
     )
 
 
-def ask_question(query: str, retriever_type: str = "similarity") -> str:
-    """Answer a question using the documents stored in the vector store."""
+def ask_question(query: str, retriever_type: str = "similarity") -> dict:
+    """Answer a question and return the files/pages used as retrieved context."""
     log.info("RAG query received", query=query, retriever_type=retriever_type)
-    answer = build_rag_chain(retriever_type).invoke(query)
+    docs = STRATEGIES.get(retriever_type, _similarity)(query)
+    context = format_docs(docs)
+    answer = (ANSWER_PROMPT | get_llm() | StrOutputParser()).invoke(
+        {"context": context, "input": query}
+    )
+    sources_by_name: dict[str, dict] = {}
+    for doc in docs:
+        source = str(doc.metadata.get("source") or "Unknown source")
+        filename = source.rsplit("://", 1)[-1].rsplit("/", 1)[-1]
+        pages = sources_by_name.setdefault(source, {"source": source, "filename": filename, "pages": []})["pages"]
+        page = doc.metadata.get("page")
+        if isinstance(page, int) and page + 1 not in pages:
+            pages.append(page + 1)
+    sources = list(sources_by_name.values())
     log.info("RAG answer generated", answer=answer)
-    return answer
+    return {"answer": answer, "sources": sources}

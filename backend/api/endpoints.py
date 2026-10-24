@@ -102,7 +102,7 @@ def system_status():
 def rag_query(payload: QueryRequest):
     """Ask a question; the answer comes only from the indexed documents."""
     try:
-        return QueryResponse(answer=ask_question(payload.query, payload.retriever_type))
+        return QueryResponse(**ask_question(payload.query, payload.retriever_type))
     except MeridianError:
         raise
     except Exception as e:

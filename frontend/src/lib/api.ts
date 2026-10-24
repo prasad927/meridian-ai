@@ -34,7 +34,7 @@ export async function listUploads() {
 }
 
 export async function askQuestion(query: string, retrieverType: string = "similarity") {
-  return request<{ answer: string }>("/api/rag/ask", {
+  return request<{ answer: string; sources: Array<{ source: string; filename: string; pages: number[] }> }>("/api/rag/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query, retriever_type: retrieverType }),
